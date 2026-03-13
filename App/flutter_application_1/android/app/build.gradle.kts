@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.flutter_application_1"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = flutter.compileSdkVersion 
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,11 +25,15 @@ android {
         applicationId = "com.example.flutter_application_1"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // Firebase requires minSdk 23 — DO NOT change to flutter.minSdkVersion
-        minSdk = flutter.minSdkVersion
+        
+        // 🟢 แก้ไข 1: เปลี่ยนจาก flutter.minSdkVersion เป็น 23 หรือ 24 ไปเลย เพื่อให้รองรับ Maps & Firebase
+        minSdk = 24 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // 🟢 แก้ไข 2: เพิ่มบรรทัดนี้เพื่อเปิดใช้งาน Multidex ที่คุณใส่ไว้ใน dependencies
+        multiDexEnabled = true 
     }
 
     buildTypes {
@@ -43,4 +47,11 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // ป้องกัน Google Maps Crash ทันทีที่โหลดบน Emulator เก่า (บังคับโหลดไลบรารี)
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    // ป้องกันปัญหา Multidex สำหรับแอพที่ใช้ Firebase + Google Maps
+    implementation("androidx.multidex:multidex:2.0.1")
 }

@@ -1,14 +1,33 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
+import 'dart:io' show Platform;
 
 import 'Allpage/home_page.dart';
 import 'Allpage/signin_page.dart';
 import 'Allpage/signup_page.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // เตรียม Google Maps renderer บน Android (ไม่ต้องกำหนด useAndroidViewSurface เพราะ deprecated แล้ว)
+  if (Platform.isAndroid) {
+    final GoogleMapsFlutterPlatform mapsImplementation =
+        GoogleMapsFlutterPlatform.instance;
+    if (mapsImplementation is GoogleMapsFlutterAndroid) {
+      try {
+        await mapsImplementation.initializeWithRenderer(
+          AndroidMapRenderer.platformDefault,
+        );
+      } catch (e) {
+        debugPrint('Failed to initialize Google Maps Renderer: $e');
+      }
+    }
+  }
+
   runApp(const SafeLifeApp());
 }
 

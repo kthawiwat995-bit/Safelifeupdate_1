@@ -21,21 +21,50 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentTab = 0;
 
-  static const _tabs = <Widget>[
-    _HomeTab(),
-    MapPage(),
-    ChatPage(),
-    AiPage(),
-    ProfilePage(),
-  ];
+  // เก็บว่า tab ไหนถูกเปิดแล้วบ้าง (lazy init — สร้างเฉพาะเมื่อกดครั้งแรก)
+  final Set<int> _visitedTabs = {0};
+
+  static Widget _buildTab(int index) {
+    switch (index) {
+      case 0:
+        return const _HomeTab();
+      case 1:
+        return const MapPage();
+      case 2:
+        return const ChatPage();
+      case 3:
+        return const AiPage();
+      case 4:
+        return const ProfilePage();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: _tabs[_currentTab]),
+      body: SafeArea(
+        // IndexedStack keep state ของ tab ที่เคยเปิดแล้ว
+        // แต่ละ tab จะถูก build ก็ต่อเมื่อกดครั้งแรกเท่านั้น
+        child: IndexedStack(
+          index: _currentTab,
+          children: List.generate(5, (i) {
+            if (!_visitedTabs.contains(i)) {
+              return const SizedBox.shrink();
+            }
+            return _buildTab(i);
+          }),
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentTab,
-        onDestinationSelected: (i) => setState(() => _currentTab = i),
+        onDestinationSelected: (i) {
+          setState(() {
+            _visitedTabs.add(i); // mark tab นี้ว่าเคยเปิดแล้ว
+            _currentTab = i;
+          });
+        },
         backgroundColor: Colors.white,
         elevation: 8,
         indicatorColor: AppTheme.primary.withValues(alpha: 0.1),
